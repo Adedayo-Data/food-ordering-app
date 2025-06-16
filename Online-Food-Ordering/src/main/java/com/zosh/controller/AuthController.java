@@ -56,9 +56,7 @@ public class AuthController {
         createdUser.setFullName(user.getFullName());
         createdUser.setRole(user.getRole());
         createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
-
         User savedUser = userRepository.save(createdUser);
-
         Cart cart = new Cart();
         cart.setCustomer(savedUser);
         cartRepository.save(cart);
@@ -92,7 +90,7 @@ public class AuthController {
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(jwt);
-        authResponse.setMessage("Register success");
+        authResponse.setMessage("Login success");
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
         // authResponse.setRole(savedUser.getRole());
 
