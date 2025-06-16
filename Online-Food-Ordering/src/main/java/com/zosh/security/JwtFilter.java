@@ -29,14 +29,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("Entered Filter chain");
         String token = null;
         String username = null;
 
         String authHeader = request.getHeader(JwtConstant.GET_HEADER);
-        System.out.println("In JwtFilter!");
-
+        System.out.println("Authorization Header: " + request.getHeader("Authorization"));
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            System.out.println("In JwtFilter If statement!");
+            System.out.println("Entered auth header check");
             token = authHeader.substring(7);
             username = jwtService.extractUsername(token);
             System.out.println(token);
@@ -46,23 +46,30 @@ public class JwtFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // validate the token - check if username matches the one in the database and issue and expiry date are valid
             // get the user details
+            System.out.println("Entered username header check");
             try {
                 UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
 
                 boolean isvalid = jwtService.validateToken(token, userDetails);
-
+                System.out.println("Status "+isvalid);
                 if (isvalid) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    if(SecurityContextHolder.getContext().getAuthentication() != null){
+                        System.out.println("Authenticated!");
+                    }else{
+                        System.out.println("Not auth!");
+                    }
                 }
 
             } catch (UsernameNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("Leaving filter chain");
         filterChain.doFilter(request, response);
 
     }
